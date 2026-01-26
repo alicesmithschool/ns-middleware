@@ -1,0 +1,10 @@
+Bill Reference,Account ID,Amount,Memo,Department ID,Location ID,Tax Code ID
+INV9731687,58,1000.00,Office Supplies,42,1,
+INV9731687,58,500.00,Professional Services,42,1,
+BILL-20260112-001,58,750.50,Printing Services,42,1,
+BILL-20260112-001,58,250.00,Shipping Costs,42,1,
+BILL-20260112-002,58,1500.00,Consulting Fees,42,1,
+
+
+
+

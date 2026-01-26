@@ -1,0 +1,8 @@
+Vendor ID,Reference No,Supervisor ID,Memo,Transaction Date,Due Date,Currency ID
+426,INV9731687,3467,Test Bill created via API,2026-01-12,2026-02-11,1
+2,BILL-20260112-001,3467,Office Supplies Invoice,2026-01-12,2026-02-11,1
+427,BILL-20260112-002,3467,Professional Services Bill,2026-01-13,2026-02-12,1
+
+
+
+

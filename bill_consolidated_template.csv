@@ -1,0 +1,10 @@
+Vendor ID,Reference No,Supervisor ID,Memo,Transaction Date,Due Date,Currency ID,Line Type,Account ID,Item ID,Quantity,Rate,Amount,Line Memo,Description,Department ID,Location ID,Tax Code ID
+426,INV9731687,3467,Test Bill created via API,2026-01-12,2026-02-11,1,expense,58,,,1000.00,Office Supplies,42,1,
+426,INV9731687,3467,Test Bill created via API,2026-01-12,2026-02-11,1,expense,58,,,500.00,Professional Services,42,1,
+426,INV9731687,3467,Test Bill created via API,2026-01-12,2026-02-11,1,item,,441,1,53.53,,Girls Skirt - 32,42,1,
+426,INV9731687,3467,Test Bill created via API,2026-01-12,2026-02-11,1,item,,441,1,53.53,,Girls Skirt - 32,42,1,
+2,BILL-20260112-001,3467,Office Supplies Invoice,2026-01-12,2026-02-11,1,expense,58,,,750.50,Printing Services,42,1,
+2,BILL-20260112-001,3467,Office Supplies Invoice,2026-01-12,2026-02-11,1,expense,58,,,250.00,Shipping Costs,42,1,
+427,BILL-20260112-002,3467,Professional Services Bill,2026-01-13,2026-02-12,1,item,,441,5,25.00,,Teaching Materials,42,1,
+427,BILL-20260112-002,3467,Professional Services Bill,2026-01-13,2026-02-12,1,item,,441,10,15.50,,School Supplies,42,1,
+

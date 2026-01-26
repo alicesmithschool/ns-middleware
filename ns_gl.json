@@ -1,0 +1,1142 @@
+[
+  {
+    "account_number": "1000",
+    "name": "Cheque Account"
+  },
+  {
+    "account_number": "3000",
+    "name": "Retained Earnings"
+  },
+  {
+    "account_number": "3200",
+    "name": "Opening Balance"
+  },
+  {
+    "account_number": "4000",
+    "name": "Sales"
+  },
+  {
+    "account_number": "4050",
+    "name": "Shipping and Handling"
+  },
+  {
+    "account_number": "6000",
+    "name": "Expenses"
+  },
+  {
+    "account_number": "22800",
+    "name": "Withholding Tax Receivable"
+  },
+  {
+    "account_number": "32000",
+    "name": "Staff Claims Payable"
+  },
+  {
+    "account_number": "32200",
+    "name": "Withholding Tax Payable"
+  },
+  {
+    "account_number": "1000000",
+    "name": "Property, plant & equipment"
+  },
+  {
+    "account_number": "10000",
+    "name": "Freehold Land"
+  },
+  {
+    "account_number": "10010",
+    "name": "Leasehold Land"
+  },
+  {
+    "account_number": "10020",
+    "name": "Prepaid Land Lease Premium"
+  },
+  {
+    "account_number": "10030",
+    "name": "School Buildings"
+  },
+  {
+    "account_number": "10040",
+    "name": "Air-Conditioning Plant"
+  },
+  {
+    "account_number": "10050",
+    "name": "Computers Hardware"
+  },
+  {
+    "account_number": "10060",
+    "name": "Computers Software"
+  },
+  {
+    "account_number": "10070",
+    "name": "Furniture & Fittings"
+  },
+  {
+    "account_number": "10080",
+    "name": "Kitchen Equipment"
+  },
+  {
+    "account_number": "10090",
+    "name": "Library Resources"
+  },
+  {
+    "account_number": "10100",
+    "name": "Motor Vehicles"
+  },
+  {
+    "account_number": "10110",
+    "name": "Office Equipment"
+  },
+  {
+    "account_number": "10120",
+    "name": "Pumps & Equipment"
+  },
+  {
+    "account_number": "10130",
+    "name": "Renovation"
+  },
+  {
+    "account_number": "10140",
+    "name": "Right-of-use Asset"
+  },
+  {
+    "account_number": "10150",
+    "name": "School Equipment"
+  },
+  {
+    "account_number": "10160",
+    "name": "Security Features"
+  },
+  {
+    "account_number": "10900",
+    "name": "Building-In Progress"
+  },
+  {
+    "account_number": "15010",
+    "name": "Accum Dep - Leasehold Land"
+  },
+  {
+    "account_number": "15020",
+    "name": "Accum Dep - Prepaid Land Lease Premium"
+  },
+  {
+    "account_number": "15030",
+    "name": "Accum Dep - School Buildings"
+  },
+  {
+    "account_number": "15040",
+    "name": "Accum Dep - Air-Conditioning Plant"
+  },
+  {
+    "account_number": "15050",
+    "name": "Accum Dep - Computers Hardware"
+  },
+  {
+    "account_number": "15060",
+    "name": "Accum Dep - Computers Software"
+  },
+  {
+    "account_number": "15070",
+    "name": "Accum Dep - Furniture"
+  },
+  {
+    "account_number": "15080",
+    "name": "Accum Dep - Kitchen Equipment"
+  },
+  {
+    "account_number": "15090",
+    "name": "Accum Dep - Library Resources"
+  },
+  {
+    "account_number": "15100",
+    "name": "Accum Dep - Motor Vehicles"
+  },
+  {
+    "account_number": "15110",
+    "name": "Accum Dep - Office Equipment"
+  },
+  {
+    "account_number": "15120",
+    "name": "Accum Dep - Pumps & Equipment"
+  },
+  {
+    "account_number": "15130",
+    "name": "Accum Dep - Renovation"
+  },
+  {
+    "account_number": "15140",
+    "name": "Accum Dep - Right-of-use Asset"
+  },
+  {
+    "account_number": "15150",
+    "name": "Accum Dep - School Equipment"
+  },
+  {
+    "account_number": "15160",
+    "name": "Accum Dep - Security Features"
+  },
+  {
+    "account_number": "2000000",
+    "name": "Other Receivables"
+  },
+  {
+    "account_number": "20000",
+    "name": "Inventory"
+  },
+  {
+    "account_number": "21100",
+    "name": "School debtors"
+  },
+  {
+    "account_number": "21200",
+    "name": "Debtors for use of facilities & events"
+  },
+  {
+    "account_number": "21300",
+    "name": "Staff Loan & Advances"
+  },
+  {
+    "account_number": "21900",
+    "name": "Sundry Debtors"
+  },
+  {
+    "account_number": "22100",
+    "name": "Interest Receivable"
+  },
+  {
+    "account_number": "22200",
+    "name": "Insurance Claim Receivable"
+  },
+  {
+    "account_number": "22300",
+    "name": "Unrealised gain from fund investment"
+  },
+  {
+    "account_number": "22400",
+    "name": "Unrealised gain/(loss) from foreign exchange"
+  },
+  {
+    "account_number": "22900",
+    "name": "Other Receivables"
+  },
+  {
+    "account_number": "23100",
+    "name": "Deposits - Telephone"
+  },
+  {
+    "account_number": "23200",
+    "name": "Deposits - Electricity"
+  },
+  {
+    "account_number": "23300",
+    "name": "Deposits - Water"
+  },
+  {
+    "account_number": "23400",
+    "name": "Deposits - Rent/Utilities"
+  },
+  {
+    "account_number": "23500",
+    "name": "Deposits - AP Creditor"
+  },
+  {
+    "account_number": "23900",
+    "name": "Deposits - Other Deposits"
+  },
+  {
+    "account_number": "24100",
+    "name": "Prepayments - Quit Rent"
+  },
+  {
+    "account_number": "24200",
+    "name": "Prepayments - Assessment"
+  },
+  {
+    "account_number": "24300",
+    "name": "Prepayments - Airlines"
+  },
+  {
+    "account_number": "24400",
+    "name": "Prepayments - KLASS o.p.s"
+  },
+  {
+    "account_number": "24500",
+    "name": "Prepayments - Swipey"
+  },
+  {
+    "account_number": "24900",
+    "name": "Prepayments - Other Prepayments"
+  },
+  {
+    "account_number": "2500000",
+    "name": "Cash and cash equivalents"
+  },
+  {
+    "account_number": "25100",
+    "name": "HK Bank Malaysia Berhad (MYR)"
+  },
+  {
+    "account_number": "25110",
+    "name": "HK Bank Malaysia Berhad (GBP)"
+  },
+  {
+    "account_number": "25120",
+    "name": "HK Bank Malaysia Berhad (USD)"
+  },
+  {
+    "account_number": "25130",
+    "name": "HK Bank Malaysia Berhad (MYR Foundation)"
+  },
+  {
+    "account_number": "25140",
+    "name": "HK Bank Malaysia Berhad (MYR PTA)"
+  },
+  {
+    "account_number": "25200",
+    "name": "HSBC Corporate Card (LKL)"
+  },
+  {
+    "account_number": "25210",
+    "name": "HSBC Corporate Card (YSC)"
+  },
+  {
+    "account_number": "26000",
+    "name": "Petty Cash"
+  },
+  {
+    "account_number": "27100",
+    "name": "Affin Hwang Asset Management Berhad"
+  },
+  {
+    "account_number": "27200",
+    "name": "Principal Asset Management Berhad"
+  },
+  {
+    "account_number": "27300",
+    "name": "RHB Asset Management Sdn Bhd"
+  },
+  {
+    "account_number": "3000000",
+    "name": "Sundry payables"
+  },
+  {
+    "account_number": "30000",
+    "name": "Trade Creditors"
+  },
+  {
+    "account_number": "31000",
+    "name": "Salary Payable"
+  },
+  {
+    "account_number": "31100",
+    "name": "EPF Payable"
+  },
+  {
+    "account_number": "31200",
+    "name": "SOCSO Payable"
+  },
+  {
+    "account_number": "31300",
+    "name": "EIS Payable"
+  },
+  {
+    "account_number": "31400",
+    "name": "Employees Tax Payable"
+  },
+  {
+    "account_number": "31500",
+    "name": "LTH Payable"
+  },
+  {
+    "account_number": "31600",
+    "name": "ASSA Union"
+  },
+  {
+    "account_number": "31700",
+    "name": "Benevolent Fund PS"
+  },
+  {
+    "account_number": "31800",
+    "name": "Benevolent Fund TS"
+  },
+  {
+    "account_number": "31900",
+    "name": "HRDF Payable"
+  },
+  {
+    "account_number": "32100",
+    "name": "Service Tax Payable"
+  },
+  {
+    "account_number": "32300",
+    "name": "KLASSops Parents Credits"
+  },
+  {
+    "account_number": "32400",
+    "name": "Recoverable Activities"
+  },
+  {
+    "account_number": "32500",
+    "name": "PTA"
+  },
+  {
+    "account_number": "32600",
+    "name": "Lease Liabilities"
+  },
+  {
+    "account_number": "32900",
+    "name": "Other Creditors"
+  },
+  {
+    "account_number": "3300000",
+    "name": "Accruals"
+  },
+  {
+    "account_number": "33000",
+    "name": "Provision for Audit Fee"
+  },
+  {
+    "account_number": "33100",
+    "name": "Provision For Retirement Gratuity"
+  },
+  {
+    "account_number": "33200",
+    "name": "Provision For Taxation"
+  },
+  {
+    "account_number": "33300",
+    "name": "Provision For Doubtful Debts"
+  },
+  {
+    "account_number": "33400",
+    "name": "Provision For Monthly Fixed Expenses"
+  },
+  {
+    "account_number": "33900",
+    "name": "Other Accruals"
+  },
+  {
+    "account_number": "3400000",
+    "name": "Fees in advance"
+  },
+  {
+    "account_number": "34000",
+    "name": "Billing In Advance"
+  },
+  {
+    "account_number": "3500000",
+    "name": "Parents' deposits, Loan & Fee Received In advance"
+  },
+  {
+    "account_number": "35000",
+    "name": "Parents' Deposits"
+  },
+  {
+    "account_number": "35100",
+    "name": "Guardian Pass Deposits"
+  },
+  {
+    "account_number": "35200",
+    "name": "Parents' loan"
+  },
+  {
+    "account_number": "35900",
+    "name": "Fees received in advance"
+  },
+  {
+    "account_number": "4000000",
+    "name": "Term Loan"
+  },
+  {
+    "account_number": "40000",
+    "name": "Term loan - HSBC Amanah"
+  },
+  {
+    "account_number": "5000000",
+    "name": "Parent members' accumulated funds"
+  },
+  {
+    "account_number": "50100",
+    "name": "Building fund contribution"
+  },
+  {
+    "account_number": "50200",
+    "name": "Building fund levy"
+  },
+  {
+    "account_number": "5900000",
+    "name": "Reserves"
+  },
+  {
+    "account_number": "59000",
+    "name": "Balance at as beginning of period"
+  },
+  {
+    "account_number": "59900",
+    "name": "Retained Earnings"
+  },
+  {
+    "account_number": "6000000",
+    "name": "Fees income"
+  },
+  {
+    "account_number": "60000",
+    "name": "School fees"
+  },
+  {
+    "account_number": "61810",
+    "name": "Discount - Sibling Discounts"
+  },
+  {
+    "account_number": "61820",
+    "name": "Discount - Long Stayers Discounts"
+  },
+  {
+    "account_number": "61830",
+    "name": "Discount - Annual Fee Discounts & Surcharge"
+  },
+  {
+    "account_number": "61840",
+    "name": "Discount - Staff Children Discounts"
+  },
+  {
+    "account_number": "61850",
+    "name": "Discount - Full Scholarship"
+  },
+  {
+    "account_number": "61860",
+    "name": "Discount - Reach For The Stars Scholarship"
+  },
+  {
+    "account_number": "61870",
+    "name": "Discount - Bursary Award"
+  },
+  {
+    "account_number": "60100",
+    "name": "MLL"
+  },
+  {
+    "account_number": "62100",
+    "name": "Application Fees"
+  },
+  {
+    "account_number": "62200",
+    "name": "Entrance Fees"
+  },
+  {
+    "account_number": "62300",
+    "name": "Enrolment Fees"
+  },
+  {
+    "account_number": "62400",
+    "name": "Re-Entry Fee"
+  },
+  {
+    "account_number": "6300000",
+    "name": "Other income"
+  },
+  {
+    "account_number": "63100",
+    "name": "Forfeited Deposits"
+  },
+  {
+    "account_number": "63200",
+    "name": "Gain/(Loss) on Disposal of Assets"
+  },
+  {
+    "account_number": "63300",
+    "name": "Penalty on Tuition Fees"
+  },
+  {
+    "account_number": "63400",
+    "name": "Rental of Facility"
+  },
+  {
+    "account_number": "63500",
+    "name": "School Shop Sales"
+  },
+  {
+    "account_number": "63600",
+    "name": "Trips and Activities Income"
+  },
+  {
+    "account_number": "63700",
+    "name": "Occupational Therapist & Speech Language Income"
+  },
+  {
+    "account_number": "63800",
+    "name": "Sports Academy Income"
+  },
+  {
+    "account_number": "63900",
+    "name": "Sundry Receipts"
+  },
+  {
+    "account_number": "7000000",
+    "name": "Non-operating income"
+  },
+  {
+    "account_number": "70100",
+    "name": "Fixed Deposit Interest"
+  },
+  {
+    "account_number": "70200",
+    "name": "Repo Interest"
+  },
+  {
+    "account_number": "70300",
+    "name": "Gain/(loss) on Unit Trust Investment"
+  },
+  {
+    "account_number": "7800000",
+    "name": "Foundation income"
+  },
+  {
+    "account_number": "78100",
+    "name": "Fundraising campaign income"
+  },
+  {
+    "account_number": "78200",
+    "name": "Donations"
+  },
+  {
+    "account_number": "78300",
+    "name": "Other trading activities"
+  },
+  {
+    "account_number": "8000000",
+    "name": "Staffing Costs"
+  },
+  {
+    "account_number": "80000",
+    "name": "Salary"
+  },
+  {
+    "account_number": "80010",
+    "name": "Attendance Allowance"
+  },
+  {
+    "account_number": "80020",
+    "name": "House Rental"
+  },
+  {
+    "account_number": "80030",
+    "name": "Meal Allowance"
+  },
+  {
+    "account_number": "80040",
+    "name": "Oversea Allowances"
+  },
+  {
+    "account_number": "80050",
+    "name": "Rent Allowances"
+  },
+  {
+    "account_number": "80060",
+    "name": "Responsibility Allowances"
+  },
+  {
+    "account_number": "80070",
+    "name": "Certification Allowances"
+  },
+  {
+    "account_number": "80080",
+    "name": "Shift Allowances"
+  },
+  {
+    "account_number": "80090",
+    "name": "Travelling Allowances"
+  },
+  {
+    "account_number": "80100",
+    "name": "Mobile Phone Allowances"
+  },
+  {
+    "account_number": "80110",
+    "name": "Other Allowances"
+  },
+  {
+    "account_number": "80120",
+    "name": "Employees Provident Fund"
+  },
+  {
+    "account_number": "80130",
+    "name": "SOCSO"
+  },
+  {
+    "account_number": "80140",
+    "name": "Employment Insurance Scheme"
+  },
+  {
+    "account_number": "8020000",
+    "name": "Other Direct Salaries"
+  },
+  {
+    "account_number": "80200",
+    "name": "Bonus"
+  },
+  {
+    "account_number": "80210",
+    "name": "Early Contract Decision Incentive"
+  },
+  {
+    "account_number": "80220",
+    "name": "External Coaches"
+  },
+  {
+    "account_number": "80230",
+    "name": "Overtime"
+  },
+  {
+    "account_number": "80240",
+    "name": "Retirement Gratuity"
+  },
+  {
+    "account_number": "80250",
+    "name": "Casual/Supply Teachers/Staff"
+  },
+  {
+    "account_number": "8030000",
+    "name": "Other Staff Costs"
+  },
+  {
+    "account_number": "80300",
+    "name": "Accomodation"
+  },
+  {
+    "account_number": "80310",
+    "name": "Air Fare"
+  },
+  {
+    "account_number": "80320",
+    "name": "Baggage Allowance"
+  },
+  {
+    "account_number": "80330",
+    "name": "Bus Transport for staff's children"
+  },
+  {
+    "account_number": "80340",
+    "name": "Car Expenses"
+  },
+  {
+    "account_number": "80350",
+    "name": "Employment Passes"
+  },
+  {
+    "account_number": "80360",
+    "name": "Employment Screening"
+  },
+  {
+    "account_number": "80370",
+    "name": "Long Service Award"
+  },
+  {
+    "account_number": "80380",
+    "name": "Medical Expenses"
+  },
+  {
+    "account_number": "80390",
+    "name": "Souvenirs"
+  },
+  {
+    "account_number": "80400",
+    "name": "Staff Amenities & Refreshment"
+  },
+  {
+    "account_number": "80410",
+    "name": "Staff Insurance - GPA"
+  },
+  {
+    "account_number": "80420",
+    "name": "Staff Insurance - Health & GTL"
+  },
+  {
+    "account_number": "80430",
+    "name": "Staff Uniform"
+  },
+  {
+    "account_number": "80440",
+    "name": "Staff Welfare/Financial Assistant"
+  },
+  {
+    "account_number": "80450",
+    "name": "Travelling Expenses"
+  },
+  {
+    "account_number": "80460",
+    "name": "Staff Trips & Activities"
+  },
+  {
+    "account_number": "80470",
+    "name": "Employee Tax"
+  },
+  {
+    "account_number": "8080000",
+    "name": "Professional Development"
+  },
+  {
+    "account_number": "80500",
+    "name": "PLO"
+  },
+  {
+    "account_number": "80510",
+    "name": "HRDF"
+  },
+  {
+    "account_number": "8100000",
+    "name": "Recruitment Expenses"
+  },
+  {
+    "account_number": "81100",
+    "name": "Job Advertising"
+  },
+  {
+    "account_number": "81200",
+    "name": "Overseas Interview Expenses"
+  },
+  {
+    "account_number": "81300",
+    "name": "Recruitment incidentals"
+  },
+  {
+    "account_number": "8200000",
+    "name": "Contracts and Facilities"
+  },
+  {
+    "account_number": "82000",
+    "name": "R & M - Buildings"
+  },
+  {
+    "account_number": "82010",
+    "name": "R & M - M & E"
+  },
+  {
+    "account_number": "82020",
+    "name": "R & M - Pool & Fields"
+  },
+  {
+    "account_number": "82030",
+    "name": "R & M - Landscape & Plants"
+  },
+  {
+    "account_number": "82040",
+    "name": "R & M - Cleaning"
+  },
+  {
+    "account_number": "82050",
+    "name": "R & M - Furniture & Fittings"
+  },
+  {
+    "account_number": "82060",
+    "name": "R & M - Equipments"
+  },
+  {
+    "account_number": "82070",
+    "name": "R & M - Drinking Water & Cups"
+  },
+  {
+    "account_number": "82090",
+    "name": "R & M - Miscellaneous"
+  },
+  {
+    "account_number": "82100",
+    "name": "Insurance"
+  },
+  {
+    "account_number": "82110",
+    "name": "Electricity"
+  },
+  {
+    "account_number": "82120",
+    "name": "Water"
+  },
+  {
+    "account_number": "82130",
+    "name": "Telephone & fax"
+  },
+  {
+    "account_number": "82140",
+    "name": "Quit Rent"
+  },
+  {
+    "account_number": "82150",
+    "name": "Assessment"
+  },
+  {
+    "account_number": "82200",
+    "name": "School Van Expenses - Fuel"
+  },
+  {
+    "account_number": "82210",
+    "name": "School Van Expenses -Repair & Maintenance"
+  },
+  {
+    "account_number": "82220",
+    "name": "School Van Expenses -Road Tax & Insurance"
+  },
+  {
+    "account_number": "82230",
+    "name": "School Van Expenses -Travelling Expenses"
+  },
+  {
+    "account_number": "82300",
+    "name": "Security Fees"
+  },
+  {
+    "account_number": "82310",
+    "name": "Cleaning Services Fees"
+  },
+  {
+    "account_number": "82320",
+    "name": "Rental of Land"
+  },
+  {
+    "account_number": "8300000",
+    "name": "Administration Cost"
+  },
+  {
+    "account_number": "83010",
+    "name": "Audit Fees"
+  },
+  {
+    "account_number": "83020",
+    "name": "Bad Debts Written Off"
+  },
+  {
+    "account_number": "83030",
+    "name": "Council Expenses"
+  },
+  {
+    "account_number": "83040",
+    "name": "Entertainment"
+  },
+  {
+    "account_number": "83050",
+    "name": "Finance Development"
+  },
+  {
+    "account_number": "83060",
+    "name": "Fixed Assets Written Off"
+  },
+  {
+    "account_number": "83070",
+    "name": "Floral Arrangement"
+  },
+  {
+    "account_number": "83080",
+    "name": "General Expenses"
+  },
+  {
+    "account_number": "83090",
+    "name": "HoS Expenses"
+  },
+  {
+    "account_number": "83100",
+    "name": "Legal & Professional Fees"
+  },
+  {
+    "account_number": "83110",
+    "name": "License & Plan fees"
+  },
+  {
+    "account_number": "83120",
+    "name": "Meeting Expenses"
+  },
+  {
+    "account_number": "83130",
+    "name": "Membership & Subscription Fees"
+  },
+  {
+    "account_number": "83150",
+    "name": "Postage & Courier Charges"
+  },
+  {
+    "account_number": "83160",
+    "name": "Printing & Stationery"
+  },
+  {
+    "account_number": "83170",
+    "name": "Registration & Filing Fees"
+  },
+  {
+    "account_number": "83180",
+    "name": "Tax & Secretarial Fees"
+  },
+  {
+    "account_number": "83900",
+    "name": "Admin Others"
+  },
+  {
+    "account_number": "8400000",
+    "name": "Financial cost"
+  },
+  {
+    "account_number": "84000",
+    "name": "Bank Charges"
+  },
+  {
+    "account_number": "84010",
+    "name": "Bank Commitment Fee"
+  },
+  {
+    "account_number": "84020",
+    "name": "Bank Overdraft Interest"
+  },
+  {
+    "account_number": "84030",
+    "name": "FOREX"
+  },
+  {
+    "account_number": "84040",
+    "name": "Merchant Fee"
+  },
+  {
+    "account_number": "84050",
+    "name": "Term Loan Interest"
+  },
+  {
+    "account_number": "84060",
+    "name": "Gain/(loss) on foreign exchange - unreliased"
+  },
+  {
+    "account_number": "8500000",
+    "name": "Marketing & Admissions Cost"
+  },
+  {
+    "account_number": "85000",
+    "name": "Admissions Expenses"
+  },
+  {
+    "account_number": "85100",
+    "name": "Communications"
+  },
+  {
+    "account_number": "85200",
+    "name": "Engagement Activities"
+  },
+  {
+    "account_number": "85300",
+    "name": "Marketing Expenses"
+  },
+  {
+    "account_number": "85400",
+    "name": "Merchandise Commission"
+  },
+  {
+    "account_number": "8600000",
+    "name": "Development Cost"
+  },
+  {
+    "account_number": "86100",
+    "name": "Alumni Relations"
+  },
+  {
+    "account_number": "86200",
+    "name": "Fundraising Expenses"
+  },
+  {
+    "account_number": "8700000",
+    "name": "IT expenses"
+  },
+  {
+    "account_number": "87100",
+    "name": "ICT Annual Maintenance & Licensing"
+  },
+  {
+    "account_number": "87200",
+    "name": "ICT Consumables"
+  },
+  {
+    "account_number": "87300",
+    "name": "ICT Leaselines Rental"
+  },
+  {
+    "account_number": "87400",
+    "name": "ICT Network Cabling"
+  },
+  {
+    "account_number": "87500",
+    "name": "ICT Printers Cartridges"
+  },
+  {
+    "account_number": "87600",
+    "name": "ICT Repair & Maintenance"
+  },
+  {
+    "account_number": "8800000",
+    "name": "Teaching Resources"
+  },
+  {
+    "account_number": "88000",
+    "name": "Teaching Materials"
+  },
+  {
+    "account_number": "88100",
+    "name": "Educational Visits"
+  },
+  {
+    "account_number": "8860000",
+    "name": "R&D"
+  },
+  {
+    "account_number": "8890000",
+    "name": "Other Expense"
+  },
+  {
+    "account_number": "88600",
+    "name": "Research & Development Costs"
+  },
+  {
+    "account_number": "88900",
+    "name": "School Shops Purchases"
+  },
+  {
+    "account_number": "88910",
+    "name": "Trips and Activities Expenses"
+  },
+  {
+    "account_number": "8900000",
+    "name": "Depreciation"
+  },
+  {
+    "account_number": "89000",
+    "name": "Depreciation - Operating Expenses"
+  },
+  {
+    "account_number": "89100",
+    "name": "Depreciation - Non Operating Expenses"
+  },
+  {
+    "account_number": "9000000",
+    "name": "Taxation"
+  },
+  {
+    "account_number": "90000",
+    "name": "Taxation"
+  },
+  {
+    "account_number": "9800000",
+    "name": "Foundation expenses"
+  },
+  {
+    "account_number": "98100",
+    "name": "Direct disbursement"
+  },
+  {
+    "account_number": "98200",
+    "name": "Fundraising campaign expenses"
+  },
+  {
+    "account_number": "98300",
+    "name": "Support cost"
+  },
+  {
+    "account_number": "98400",
+    "name": "Foundation bank charges"
+  },
+  {
+    "account_number": "98900",
+    "name": "Foundation taxation"
+  }
+]

@@ -1,0 +1,50 @@
+[
+    {
+        "account_number": "63500",
+        "name": "School Shop Sales"
+    },
+    {
+        "account_number": "88000",
+        "name": "Teaching Materials"
+    },
+    {
+        "account_number": "82000",
+        "name": "R & M - Buildings"
+    },
+    {
+        "account_number": "82010",
+        "name": "R & M - M & E"
+    },
+    {
+        "account_number": "82020",
+        "name": "R & M - Pool & Fields"
+    },
+    {
+        "account_number": "82030",
+        "name": "R & M - Landscape & Plants"
+    },
+    {
+        "account_number": "82040",
+        "name": "R & M - Cleaning"
+    },
+    {
+        "account_number": "82050",
+        "name": "R & M - Furniture & Fittings"
+    },
+    {
+        "account_number": "82060",
+        "name": "R & M - Equipments"
+    },
+    {
+        "account_number": "82070",
+        "name": "R & M - Drinking Water & Cups"
+    },
+    {
+        "account_number": "82090",
+        "name": "R & M - Miscellaneous"
+    },
+    {
+        "account_number": "88900",
+        "name": "School Equipment"
+    }
+]
