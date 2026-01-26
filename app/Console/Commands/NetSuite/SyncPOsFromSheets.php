@@ -149,6 +149,26 @@ class SyncPOsFromSheets extends Command
                 }
             }
             
+            // Find Discount column (column G is index 6)
+            $discountColumn = null;
+            if (isset($itemHeaders[6])) {
+                $discountColumn = $itemHeaders[6];
+            } else {
+                // Try to find by name
+                foreach (['Discount', 'Enter_Discount_Amount', 'Discount Amount'] as $col) {
+                    if (isset($itemHeaderMap[$col])) {
+                        $discountColumn = $col;
+                        break;
+                    }
+                }
+            }
+            
+            if ($discountColumn) {
+                $this->info("Using Discount column: '{$discountColumn}' (will apply discount if > 0)");
+            } else {
+                $this->info("No Discount column found - will use unit price as-is");
+            }
+            
             // Group items by EPR (PO ID)
             $itemsByPO = [];
             $debugSampleShown = false;
@@ -176,11 +196,33 @@ class SyncPOsFromSheets extends Command
                 $quantity = !empty($quantityRaw) ? (float) str_replace(',', '', trim($quantityRaw)) : 1.0;
                 $unitPrice = !empty($unitPriceRaw) ? (float) str_replace(',', '', trim($unitPriceRaw)) : 0.0;
 
+                // Read discount from column G (index 6) if available
+                $discount = 0.0;
+                if ($discountColumn && isset($itemHeaderMap[$discountColumn]) && isset($row[$itemHeaderMap[$discountColumn]])) {
+                    $discountRaw = $row[$itemHeaderMap[$discountColumn]] ?? '';
+                    $discount = !empty($discountRaw) ? (float) str_replace(',', '', trim($discountRaw)) : 0.0;
+                }
+
+                // Apply discount if > 0: adjust unit price = (unit_price * quantity - discount) / quantity
+                $originalUnitPrice = $unitPrice;
+                if ($discount > 0.01 && $quantity > 0) {
+                    $totalBeforeDiscount = $unitPrice * $quantity;
+                    $totalAfterDiscount = $totalBeforeDiscount - $discount;
+                    $unitPrice = $totalAfterDiscount / $quantity;
+                    
+                    // Ensure non-negative
+                    if ($unitPrice < 0) {
+                        $unitPrice = 0;
+                    }
+                }
+
                 $itemData = [
                     'name' => $row[$itemHeaderMap[$nameColumn]] ?? '',
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
                     'amount' => $quantity * $unitPrice,
+                    'original_unit_price' => $originalUnitPrice,
+                    'discount' => $discount,
                 ];
 
                 // Add item number/reference if available
@@ -190,7 +232,8 @@ class SyncPOsFromSheets extends Command
 
                 // Debug: Show first few items to verify parsing
                 if (!$debugSampleShown && count($itemsByPO) <= 2) {
-                    $this->line("  Sample: EPR '{$eprId}' → Item '{$itemData['name']}' (Qty: {$quantityRaw} → {$quantity}, Price: {$unitPriceRaw} → {$unitPrice})");
+                    $discountInfo = $discount > 0.01 ? " (Discount: {$discount}, Adjusted Price: {$originalUnitPrice} → {$unitPrice})" : "";
+                    $this->line("  Sample: EPR '{$eprId}' → Item '{$itemData['name']}' (Qty: {$quantityRaw} → {$quantity}, Price: {$unitPriceRaw} → {$unitPrice}){$discountInfo}");
                     if (count($itemsByPO) == 2) {
                         $debugSampleShown = true;
                     }
