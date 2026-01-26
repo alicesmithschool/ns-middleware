@@ -1,43 +1,46 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-// Artisan::command('inspire', function () {
-//     $this->comment(Inspiring::quote());
-//     Log::info('Inspiring quote: ' . Inspiring::quote());
-// })->purpose('Display an inspiring quote')->everyMinute();
+// Sync vendors every 30 minutes
+Schedule::command('netsuite:sync-vendors')
+    ->everyThirtyMinutes()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-// sync vendors every 30 minutes
-Artisan::command('netsuite:sync-vendors', function () {
-    Log::info('Vendors synced');
-})->everyThirtyMinutes();
+// Sync vendors to Kissflow hourly
+Schedule::command('netsuite:sync-vendors-to-kissflow')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-Artisan::command('netsuite:sync-vendors-to-kissflow', function () {
-    Log::info('Vendors synced to kissflow');
-})->hourly();
+// Sync employees hourly
+Schedule::command('netsuite:sync-employees')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-// sync employees
-Artisan::command('netsuite:sync-employees', function () {
-    Log::info('Employees synced');
-})->hourly();
+// Sync items hourly
+Schedule::command('netsuite:sync-items')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-// sync items
-Artisan::command('netsuite:sync-items', function () {
-    Log::info('Items synced');
-})->hourly();
+// Sync POs from sheets hourly
+Schedule::command('netsuite:sync-pos-from-sheets')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-Artisan::command('netsuite:sync-pos-from-sheets', function () {
-    Log::info('POs synced to NetSuite');
-})->hourly();
+// Sync departments (budget codes) daily
+Schedule::command('netsuite:sync-departments')
+    ->daily()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-// sync departments (budget codes)
-Artisan::command('netsuite:sync-departments', function () {
-    Log::info('Departments synced');
-})->daily();
-
-// sync accounts (GL code)
-Artisan::command('netsuite:sync-accounts', function () {
-    Log::info('Accounts synced');
-})->daily();
+// Sync accounts (GL code) daily
+Schedule::command('netsuite:sync-accounts')
+    ->daily()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
 
