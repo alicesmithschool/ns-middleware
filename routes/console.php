@@ -39,7 +39,7 @@ Schedule::command('netsuite:sync-departments')
     ->appendOutputTo(storage_path('logs/scheduler.log'));
 
 // Sync accounts (GL code) daily
-Schedule::command('netsuite:sync-accounts')
+Schedule::command('netsuite:sync-accounts --use-rest')
     ->daily()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
