@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Schedule;
 
 // Sync vendors every 30 minutes
-Schedule::command('netsuite:sync-vendors')
+Schedule::command('netsuite:sync-vendors  --use-rest')
     ->everyThirtyMinutes()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
@@ -39,7 +39,7 @@ Schedule::command('netsuite:sync-departments')
     ->appendOutputTo(storage_path('logs/scheduler.log'));
 
 // Sync accounts (GL code) daily
-Schedule::command('netsuite:sync-accounts --use-rest')
+Schedule::command('netsuite:sync-accounts')
     ->daily()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
