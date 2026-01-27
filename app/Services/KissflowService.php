@@ -501,10 +501,10 @@ class KissflowService
 
             $responseData = $response->json();
 
-            Log::info('Kissflow Vendor Batch Push Success', [
-                'vendor_count' => count($batchData),
-                'response' => $responseData
-            ]);
+            // Log::info('Kissflow Vendor Batch Push Success', [
+            //     'vendor_count' => count($batchData),
+            //     'response' => $responseData
+            // ]);
 
             return [
                 'success' => true,
