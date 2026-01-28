@@ -458,7 +458,7 @@ class NetSuiteRestService
     {
         try {
             $vendors = $this->searchVendors(
-                'id, entityid',
+                ['id', 'entityid'],
                 "entityid = '{$entityId}'",
                 1
             );
@@ -488,12 +488,16 @@ class NetSuiteRestService
             if (empty($vendorData['company_name']) || trim($vendorData['company_name']) === '') {
                 throw new \Exception('Company name is required and cannot be empty. Received: ' . json_encode($vendorData['company_name'] ?? 'NOT SET'));
             }
-            $payload['companyName'] = trim($vendorData['company_name']);
+            $companyNameValue = trim($vendorData['company_name']);
             
             // Ensure companyName is not empty after trimming
-            if (empty($payload['companyName'])) {
+            if (empty($companyNameValue)) {
                 throw new \Exception('Company name cannot be empty after trimming. Original value: ' . json_encode($vendorData['company_name']));
             }
+            
+            // Set both legalName and companyName - test.js does this (line 649-651)
+            $payload['legalName'] = $companyNameValue;
+            $payload['companyName'] = $companyNameValue;
 
             // Entity ID (optional - NetSuite will auto-generate if not provided)
             if (isset($vendorData['entity_id']) && !empty($vendorData['entity_id'])) {
@@ -520,53 +524,41 @@ class NetSuiteRestService
                 $payload['currency'] = ['id' => (string) $vendorData['currency_id']];
             }
 
-            // Address book
+            // Address book - match test.js structure exactly (line 543-567)
+            // Uses 'addressBook' (camelCase) with 'items' array
             if (isset($vendorData['address_1']) || isset($vendorData['city']) || isset($vendorData['country'])) {
-                $addressbook = [
-                    'defaultBilling' => true,
-                    'defaultShipping' => true,
-                    'addressbookAddress' => []
-                ];
+                $addressbookAddress = [];
 
                 if (isset($vendorData['address_1'])) {
-                    $addressbook['addressbookAddress']['addr1'] = $vendorData['address_1'];
+                    $addressbookAddress['addr1'] = $vendorData['address_1'];
                 }
                 if (isset($vendorData['address_2'])) {
-                    $addressbook['addressbookAddress']['addr2'] = $vendorData['address_2'];
+                    $addressbookAddress['addr2'] = $vendorData['address_2'];
                 }
                 if (isset($vendorData['city'])) {
-                    $addressbook['addressbookAddress']['city'] = $vendorData['city'];
+                    $addressbookAddress['city'] = $vendorData['city'];
                 }
                 if (isset($vendorData['state'])) {
-                    $addressbook['addressbookAddress']['state'] = $vendorData['state'];
+                    $addressbookAddress['state'] = $vendorData['state'];
                 }
                 if (isset($vendorData['zip'])) {
-                    $addressbook['addressbookAddress']['zip'] = $vendorData['zip'];
+                    $addressbookAddress['zip'] = $vendorData['zip'];
                 }
                 if (isset($vendorData['country'])) {
-                    $addressbook['addressbookAddress']['country'] = $vendorData['country'];
+                    $addressbookAddress['country'] = $vendorData['country'];
                 }
 
-                $payload['addressbookList'] = ['addressbook' => [$addressbook]];
+                $payload['addressBook'] = [
+                    'items' => [[
+                        'defaultBilling' => true,
+                        'defaultShipping' => true,
+                        'addressBookAddress' => $addressbookAddress
+                    ]]
+                ];
             }
 
             // Custom fields
             $customFields = [];
-
-            // TIN Number
-            if (isset($vendorData['tin_number'])) {
-                $customFields['custentity_assa_tin_number'] = $vendorData['tin_number'];
-            }
-
-            // SST Number
-            if (isset($vendorData['sst_number'])) {
-                $customFields['custentity_assa_sst_number'] = $vendorData['sst_number'];
-            }
-
-            // Tourism Tax
-            if (isset($vendorData['tourism_tax'])) {
-                $customFields['custentity_assa_tourism_tax'] = $vendorData['tourism_tax'];
-            }
 
             // E-Invoicing fields - ALL required by NetSuite for ALL vendors
             // Always set these fields with proper defaults - NEVER skip these
@@ -585,58 +577,145 @@ class NetSuiteRestService
             }
             
             // Helper function to get value or default (allows "0" as valid value)
+            // IMPORTANT: Never return empty string - NetSuite rejects empty strings
             $getValue = function($key, $default) use ($vendorData) {
-                return (isset($vendorData[$key]) && $vendorData[$key] !== null && $vendorData[$key] !== '') 
+                $value = isset($vendorData[$key]) && $vendorData[$key] !== null && $vendorData[$key] !== '' 
                     ? trim((string)$vendorData[$key]) 
                     : $default;
+                // Double-check: if value is still empty after trim, use default
+                return ($value === '' || $value === null) ? $default : $value;
             };
             
-            // ALWAYS set all E-Invoicing fields - these are REQUIRED by NetSuite
-            // For non-Malaysian vendors: TIN = EI000000000030, Identification Code = 000000
-            $customFields['custentity_einv_tin_no'] = $getValue('einv_tin_no', 'EI000000000030');
-            $customFields['custentity_einv_registered_name'] = $getValue('einv_registered_name', $getValue('company_name', ''));
-            $customFields['custentity_einv_sst_register_no'] = $getValue('einv_sst_register_no', '0');
-            $customFields['custentity_einv_msic_code'] = $getValue('einv_msic_code', '00000');
-            $customFields['custentity_einv_address_line1'] = $getValue('einv_address_line1', '0');
-            // City Name: For non-Malaysian vendors use "Not Applicable", for Malaysian use "Kuala Lumpur"
-            $customFields['custentity_einv_city_name'] = $getValue('einv_city_name', (!$isMalaysian ? 'Not Applicable' : 'Kuala Lumpur'));
-            $customFields['custentity_einv_country_code'] = strtoupper($getValue('einv_country_code', 'MY'));
-            $customFields['custentity_einv_state_code'] = $getValue('einv_state_code', '0');
-            // For non-Malaysian vendors, default Identification Code to "000000", otherwise "0"
-            $customFields['custentity_einv_identification_code'] = $getValue('einv_identification_code', (!$isMalaysian ? '000000' : '0'));
-            $customFields['custentity_einv_identification_type'] = $getValue('einv_identification_type', 'BRN');
+            // ALWAYS set all E-Invoicing fields (custentity_tin_*) - these are REQUIRED by NetSuite
+            // CRITICAL: All string fields MUST have non-empty values - NetSuite rejects empty strings
+            
+            // Get company name (fallback for various fields)
+            $companyName = $payload['companyName'] ?? 'Unknown Company';
+            
+            // TIN No - REQUIRED
+            $customFields['custentity_tin_no'] = $getValue('tin_no', 'EI000000000030');
+            
+            // Registered Name - REQUIRED - use company name
+            $customFields['custentity_tin_registeredname'] = $getValue('tin_registered_name', $companyName);
+            
+            // SST Register No - REQUIRED
+            $customFields['custentity_tin_sstregisterno'] = $getValue('tin_sst_register_no', 'NA');
+            
+            // MSIC Code - REQUIRED - reference to custom record
+            // test.js sends ID only (line 664, 674, 687)
+            $msicId = isset($vendorData['tin_msic_id']) && !empty($vendorData['tin_msic_id']) 
+                ? (string)$vendorData['tin_msic_id'] 
+                : '1';
+            $customFields['custentity_tin_msic'] = ['id' => $msicId];
+            
+            // Address Line1 - REQUIRED - use address, city, or company name
+            $addressLine1 = $getValue('tin_address_line1', null);
+            if (empty($addressLine1)) {
+                // Try to use address_1 from payload
+                $addressLine1 = isset($vendorData['address_1']) && !empty($vendorData['address_1']) 
+                    ? trim($vendorData['address_1']) 
+                    : null;
+            }
+            if (empty($addressLine1)) {
+                // Try to use city
+                $addressLine1 = isset($vendorData['city']) && !empty($vendorData['city']) 
+                    ? trim($vendorData['city']) 
+                    : null;
+            }
+            if (empty($addressLine1)) {
+                // Final fallback: use company name or "NA"
+                $addressLine1 = $companyName !== 'Unknown Company' ? $companyName : 'NA';
+            }
+            $customFields['custentity_tin_addrline1'] = $addressLine1;
+            
+            // City Name - REQUIRED
+            $cityName = $getValue('tin_city_name', null);
+            if (empty($cityName)) {
+                // Try to use city from payload
+                $cityName = isset($vendorData['city']) && !empty($vendorData['city']) 
+                    ? trim($vendorData['city']) 
+                    : null;
+            }
+            if (empty($cityName)) {
+                // Default based on country
+                $cityName = !$isMalaysian ? 'Not Applicable' : 'Kuala Lumpur';
+            }
+            $customFields['custentity_tin_cityname'] = $cityName;
+            
+            // Country Code - REQUIRED - reference to custom record
+            // test.js sends ID only (line 706)
+            $countryCodeId = isset($vendorData['tin_country_code_id']) && !empty($vendorData['tin_country_code_id']) 
+                ? (string)$vendorData['tin_country_code_id'] 
+                : ($isMalaysian ? '158' : '239'); // 158=MYS, 239=USA
+            $customFields['custentity_tin_countrycode'] = ['id' => $countryCodeId];
+            
+            // State Code - REQUIRED - reference to custom record
+            $stateCodeId = isset($vendorData['tin_state_code_id']) && !empty($vendorData['tin_state_code_id']) 
+                ? (string)$vendorData['tin_state_code_id'] 
+                : '218'; // 218 = "17 : Not Applicable"
+            $customFields['custentity_tin_statecode'] = [
+                'id' => $stateCodeId,
+                'refName' => '17 : Not Applicable'
+            ];
+            
+            // Identification Code - REQUIRED - string value
+            $customFields['custentity_tin_id'] = $getValue('tin_identification_code', (!$isMalaysian ? '000000' : '0'));
+            
+            // Identification Type - REQUIRED - reference to custom record
+            // test.js sends refName only (line 746, 753)
+            $customFields['custentity_tin_idtype'] = ['refName' => 'BRN : Business Registration No.'];
+            
+            // Tourism Tax Register (optional but set to NA if provided field is empty)
+            if (isset($vendorData['tin_tourism_tax']) && !empty(trim($vendorData['tin_tourism_tax']))) {
+                $customFields['custentity_tin_tourismtaxregister'] = trim($vendorData['tin_tourism_tax']);
+            }
             
             $hasEInvFields = true; // Always true since we always set these fields
 
             // ALWAYS add customFields to payload - E-Invoicing fields are required
-            // Verify all required E-Invoicing fields are present
-            $requiredEInvFields = [
-                'custentity_einv_tin_no',
-                'custentity_einv_registered_name',
-                'custentity_einv_sst_register_no',
-                'custentity_einv_msic_code',
-                'custentity_einv_address_line1',
-                'custentity_einv_city_name',
-                'custentity_einv_country_code',
-                'custentity_einv_state_code',
-                'custentity_einv_identification_code',
-                'custentity_einv_identification_type'
+            // Verify all required E-Invoicing fields (custentity_tin_*) are present
+            $requiredTINFields = [
+                'custentity_tin_no',
+                'custentity_tin_registeredname',
+                'custentity_tin_sstregisterno',
+                'custentity_tin_msic',
+                'custentity_tin_addrline1',
+                'custentity_tin_cityname',
+                'custentity_tin_countrycode',
+                'custentity_tin_statecode',
+                'custentity_tin_id',
+                'custentity_tin_idtype'
             ];
             
-            foreach ($requiredEInvFields as $field) {
-                if (!isset($customFields[$field]) || $customFields[$field] === null || $customFields[$field] === '') {
-                    throw new \Exception("Required E-Invoicing field {$field} is missing or empty. Value: " . ($customFields[$field] ?? 'NOT SET'));
+            foreach ($requiredTINFields as $field) {
+                if (!isset($customFields[$field])) {
+                    throw new \Exception("Required TIN/E-Invoicing field {$field} is missing. Value: NOT SET");
+                }
+                // For string fields, check if not empty
+                if (is_string($customFields[$field]) && ($customFields[$field] === null || $customFields[$field] === '')) {
+                    throw new \Exception("Required TIN/E-Invoicing field {$field} is empty. Value: " . json_encode($customFields[$field]));
+                }
+                // For object fields (references), check if has id OR refName
+                // Different reference fields require different formats based on test.js:
+                // - msic, countrycode: id only
+                // - statecode: id + refName
+                // - idtype: refName only
+                if (is_array($customFields[$field]) && !isset($customFields[$field]['id']) && !isset($customFields[$field]['refName'])) {
+                    throw new \Exception("Required TIN/E-Invoicing field {$field} must have 'id' or 'refName' property. Value: " . json_encode($customFields[$field]));
                 }
             }
             
-            // Always add customFields to payload
-            $payload['customFields'] = $customFields;
-
-            // Log E-Invoicing field values for debugging
-            $einvFieldValues = [];
+            // Add custom fields directly to payload (NOT nested under 'customFields' key)
+            // NetSuite REST API expects custom fields at root level alongside standard fields
             foreach ($customFields as $key => $value) {
-                if (strpos($key, 'custentity_einv_') === 0) {
-                    $einvFieldValues[$key] = $value;
+                $payload[$key] = $value;
+            }
+
+            // Log TIN/E-Invoicing field values for debugging
+            $tinFieldValues = [];
+            foreach ($customFields as $key => $value) {
+                if (strpos($key, 'custentity_tin_') === 0) {
+                    $tinFieldValues[$key] = $value;
                 }
             }
             
@@ -644,16 +723,22 @@ class NetSuiteRestService
                 'company_name' => $payload['companyName'] ?? null,
                 'entity_id' => $vendorData['entity_id'] ?? null,
                 'has_custom_fields' => !empty($customFields),
-                'has_einv_fields' => $hasEInvFields,
-                'einv_fields_count' => count($einvFieldValues),
-                'einv_fields' => $einvFieldValues,
+                'tin_fields_count' => count($tinFieldValues),
+                'tin_fields' => $tinFieldValues,
                 'is_malaysian' => $isMalaysian,
                 'country_code' => $countryCode,
                 'country_field' => $countryField,
-                'identification_code' => $customFields['custentity_einv_identification_code'] ?? null,
+                'identification_code' => $customFields['custentity_tin_id'] ?? null,
                 'full_payload' => json_encode($payload, JSON_PRETTY_PRINT),
                 'custom_fields_keys' => array_keys($customFields)
             ]);
+            
+            // DEBUG: Output the actual payload to console
+            if (php_sapi_name() === 'cli') {
+                echo "\n=== ACTUAL PAYLOAD BEING SENT TO NETSUITE ===\n";
+                echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+                echo "\n=== END PAYLOAD ===\n\n";
+            }
 
             $response = $this->makeRequest('POST', $endpoint, $payload);
 
@@ -760,6 +845,51 @@ class NetSuiteRestService
             Log::error("Error fetching countries via SuiteQL: " . $e->getMessage());
             // Fallback to record API
             return $this->fetchCountriesViaRecord();
+        }
+    }
+
+    /**
+     * Fetch MSIC codes from NetSuite
+     *
+     * @return array Array of MSIC codes
+     */
+    public function fetchMSICCodes()
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            // Query to get all MSIC codes from custom record
+            $query = "SELECT id, name FROM customrecord__eiv_msic ORDER BY name";
+
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Prefer' => 'transient'
+                ])
+                ->post("https://{$this->domain}/services/rest/query/v1/suiteql", [
+                    'q' => $query
+                ]);
+
+            if (!$response->successful()) {
+                $errorBody = $response->body();
+                Log::error("NetSuite MSIC codes fetch failed: " . $errorBody);
+                throw new \Exception("NetSuite MSIC codes fetch failed: {$response->status()} - {$errorBody}");
+            }
+
+            $data = $response->json();
+
+            if (!isset($data['items'])) {
+                Log::warning("No MSIC codes returned from NetSuite");
+                return [];
+            }
+
+            Log::info("Fetched " . count($data['items']) . " MSIC codes from NetSuite");
+
+            return $data['items'] ?? [];
+
+        } catch (\Exception $e) {
+            Log::error("Error fetching MSIC codes via SuiteQL: " . $e->getMessage());
+            throw $e;
         }
     }
 

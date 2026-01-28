@@ -4,18 +4,20 @@ namespace App\Console\Commands\NetSuite;
 
 use App\Models\NetSuiteCountry;
 use App\Models\NetSuiteCurrency;
+use App\Models\NetSuiteMSIC;
 use App\Services\GoogleSheetsService;
 use App\Services\KissflowService;
 use App\Services\NetSuiteRestService;
+use App\Services\NetSuiteService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class PushVendorsFromSheets extends Command
 {
-    protected $signature = 'netsuite:push-vendors-from-sheets {--force : Force push even if vendor already exists} {--spreadsheet-id= : Override spreadsheet ID from env} {--debug : Show detailed debug information}';
-    protected $description = 'Push vendors from Google Sheets to NetSuite';
+    protected $signature = 'netsuite:push-vendors-from-sheets {--force : Force push even if vendor already exists} {--spreadsheet-id= : Override spreadsheet ID from env} {--debug : Show detailed debug information} {--rest : Use REST API instead of SOAP (not recommended - has validation issues)}';
+    protected $description = 'Push vendors from Google Sheets to NetSuite (uses SOAP API by default)';
 
-    public function handle(GoogleSheetsService $sheetsService, NetSuiteRestService $netSuiteRestService, KissflowService $kissflowService)
+    public function handle(GoogleSheetsService $sheetsService, NetSuiteRestService $netSuiteRestService, NetSuiteService $netSuiteService, KissflowService $kissflowService)
     {
         $this->info('Starting vendor push from Google Sheets to NetSuite...');
 
@@ -29,8 +31,12 @@ class PushVendorsFromSheets extends Command
 
         $environment = config('netsuite.environment', 'sandbox');
         $isSandbox = $environment === 'sandbox';
+        $useREST = $this->option('rest');
+        $apiType = $useREST ? 'REST' : 'SOAP';
+        
         $this->info("Using spreadsheet ID: {$spreadsheetId}");
         $this->info("NetSuite Environment: {$environment}");
+        $this->info("API Mode: {$apiType}" . ($useREST ? ' ⚠️  (may have validation issues)' : ' ✓ (recommended)'));
         $this->newLine();
 
         try {
@@ -271,134 +277,133 @@ class PushVendorsFromSheets extends Command
                         }
                     }
 
-                    // Tax fields
-                    if (isset($headerMap['TIN_Number']) && isset($row[$headerMap['TIN_Number']])) {
-                        $vendorData['tin_number'] = trim($row[$headerMap['TIN_Number']]);
-                    }
-                    if (isset($headerMap['SST_Number']) && isset($row[$headerMap['SST_Number']])) {
-                        $vendorData['sst_number'] = trim($row[$headerMap['SST_Number']]);
-                    }
-                    if (isset($headerMap['Tourism_Tax']) && isset($row[$headerMap['Tourism_Tax']])) {
-                        $vendorData['tourism_tax'] = trim($row[$headerMap['Tourism_Tax']]);
-                    }
-
-                    // TODO: Add lookup logic for Category_of_Suppliers, Vendor_Category, Nature_of_Business, MSIC_Code
-                    // These would require lookup tables similar to currencies
-
-                    // E-Invoicing fields - ALL required by NetSuite
-                    // Determine if vendor is Malaysian
+                    // Determine if vendor is Malaysian (needed for TIN field defaults)
                     $countryInput = isset($headerMap['Country']) && isset($row[$headerMap['Country']])
                         ? strtoupper(trim($row[$headerMap['Country']]))
                         : '';
                     $isMalaysian = in_array($countryInput, ['MALAYSIA', 'MY', 'MYS', '_MALAYSIA']);
 
-                    // (EInv)TIN No - REQUIRED
-                    if (!$isMalaysian) {
-                        $vendorData['einv_tin_no'] = 'EI000000000030';
-                    } else if (isset($headerMap['TIN_Number']) && !empty($row[$headerMap['TIN_Number']])) {
-                        $vendorData['einv_tin_no'] = trim($row[$headerMap['TIN_Number']]);
+                    // TIN/E-Invoicing fields - ALL required by NetSuite (custentity_tin_* fields)
+                    // Note: NetSuite REST service will use company details as fallbacks if these are not set
+                    
+                    // TIN No - REQUIRED (custentity_tin_no)
+                    // For non-Malaysian: use "EI00000000030" as default
+                    // For Malaysian: MUST provide TIN_Number from sheet (no default)
+                    if (isset($headerMap['TIN_Number']) && !empty(trim($row[$headerMap['TIN_Number']] ?? ''))) {
+                        $vendorData['tin_no'] = trim($row[$headerMap['TIN_Number']]);
                     } else {
-                        $vendorData['einv_tin_no'] = 'EI000000000030'; // Fallback for MY without TIN
-                    }
-
-                    // (EInv)Registered Name - REQUIRED - use company name
-                    $vendorData['einv_registered_name'] = $supplierName;
-
-                    // (EInv)SST Register No - REQUIRED - default to "0"
-                    if (isset($headerMap['SST_Number']) && !empty($row[$headerMap['SST_Number']])) {
-                        $vendorData['einv_sst_register_no'] = trim($row[$headerMap['SST_Number']]);
-                    } else {
-                        $vendorData['einv_sst_register_no'] = '0';
-                    }
-
-                    // (EInv)MSIC Code - REQUIRED - default to "00000"
-                    if (isset($headerMap['MSIC_Code']) && !empty($row[$headerMap['MSIC_Code']])) {
-                        $vendorData['einv_msic_code'] = trim($row[$headerMap['MSIC_Code']]);
-                    } else {
-                        $vendorData['einv_msic_code'] = '00000';
-                    }
-
-                    // (EInv)Address Line1 - REQUIRED - use from Address_1 field or default
-                    if (isset($headerMap['Address_1']) && !empty($row[$headerMap['Address_1']])) {
-                        $vendorData['einv_address_line1'] = trim($row[$headerMap['Address_1']]);
-                    } else {
-                        $vendorData['einv_address_line1'] = '0'; // Default to "0" instead of "-"
-                    }
-
-                    // (EInv)City Name - REQUIRED - use from City field or default
-                    if (isset($headerMap['City']) && !empty($row[$headerMap['City']])) {
-                        $vendorData['einv_city_name'] = trim($row[$headerMap['City']]);
-                    } else {
-                        // For non-Malaysian vendors, use "Not Applicable", for Malaysian use country name or default
-                        if (!$isMalaysian) {
-                            $vendorData['einv_city_name'] = 'Not Applicable';
+                        if ($isMalaysian) {
+                            // Malaysian vendors MUST have a TIN number
+                            $this->error("  ✗ Malaysian vendor '{$vendorIdentifier}' is missing TIN_Number in sheet. This is REQUIRED for Malaysian vendors.");
+                            $this->line("    Please add TIN_Number column to your sheet for Malaysian vendors.");
+                            $failedVendors[] = [
+                                'supplier_name' => $supplierName,
+                                'code' => $code,
+                                'reason' => 'Missing TIN_Number (required for Malaysian vendors)'
+                            ];
+                            continue; // Skip this vendor
                         } else {
-                            $vendorData['einv_city_name'] = 'Kuala Lumpur'; // Default Malaysian city
+                            // Non-Malaysian vendors use default
+                            $vendorData['tin_no'] = 'EI00000000030'; // Default for foreign vendors only
                         }
                     }
 
-                    // (EInv)Country Code - REQUIRED - use ISO code from Country field
-                    $einvCountryCode = null;
-                    if (!empty($countryInput)) {
-                        $country = NetSuiteCountry::findByIdentifier($countryInput, $isSandbox);
-                        if ($country && $country->iso_code_2) {
-                            $einvCountryCode = strtoupper($country->iso_code_2);
-                        } else if (strlen($countryInput) == 2) {
-                            // Fallback to raw input if it looks like an ISO code
-                            $einvCountryCode = strtoupper($countryInput);
+                    // Registered Name - REQUIRED (custentity_tin_registeredname) - use company name
+                    $vendorData['tin_registered_name'] = $supplierName;
+
+                    // SST Register No - REQUIRED (custentity_tin_sstregisterno)
+                    if (isset($headerMap['SST_Number']) && !empty(trim($row[$headerMap['SST_Number']] ?? ''))) {
+                        $vendorData['tin_sst_register_no'] = trim($row[$headerMap['SST_Number']]);
+                    } else {
+                        $vendorData['tin_sst_register_no'] = 'NA';
+                    }
+
+                    // MSIC Code - REQUIRED (custentity_tin_msic) - reference to custom record
+                    // Sheet provides MSIC_Code as string, NetSuite expects record ID
+                    // Lookup from database or default to "00000 : NOT APPLICABLE"
+                    $msicCodeFromSheet = isset($headerMap['MSIC_Code']) ? trim($row[$headerMap['MSIC_Code']] ?? '') : '';
+                    
+                    if (!empty($msicCodeFromSheet)) {
+                        // Try to find MSIC in database
+                        $msicRecord = NetSuiteMSIC::findByIdentifier($msicCodeFromSheet, !$isSandbox);
+                        
+                        if ($msicRecord) {
+                            $vendorData['tin_msic_id'] = $msicRecord->netsuite_id;
+                            $this->line("  ✓ MSIC Code: {$msicCodeFromSheet} → {$msicRecord->ref_name} (ID: {$msicRecord->netsuite_id})");
                         } else {
-                            // Try to extract 2-letter code from country name
-                            // For non-Malaysian countries, we need the actual ISO code, not MY
-                            $einvCountryCode = null; // Will default based on isMalaysian
+                            // MSIC code not found in database
+                            $this->warn("  ⚠ MSIC Code '{$msicCodeFromSheet}' not found in database, using default (00000 : NOT APPLICABLE)");
+                            $this->line("    Run 'php artisan netsuite:sync-msic-codes' to update MSIC database");
+                            $vendorData['tin_msic_id'] = '1'; // Default to "00000 : NOT APPLICABLE"
                         }
-                    }
-                    // Only default to MY if vendor is actually Malaysian, otherwise use the detected code or leave empty for non-MY
-                    if ($isMalaysian) {
-                        $vendorData['einv_country_code'] = $einvCountryCode ?? 'MY';
                     } else {
-                        // For non-Malaysian vendors, use the detected code or a safe default
-                        // If no country code found, we still need to set something - use the country input if it's 2 letters
-                        $vendorData['einv_country_code'] = $einvCountryCode ?? (strlen($countryInput) == 2 ? strtoupper($countryInput) : 'US'); // Default to US for non-MY if unclear
+                        // No MSIC provided, use default
+                        $vendorData['tin_msic_id'] = '1'; // Default to "00000 : NOT APPLICABLE"
                     }
 
-                    // (EInv)State Code - REQUIRED - use from State field or default
-                    if (isset($headerMap['State']) && !empty($row[$headerMap['State']])) {
-                        $vendorData['einv_state_code'] = trim($row[$headerMap['State']]);
-                    } else {
-                        $vendorData['einv_state_code'] = '0'; // Default to "0" instead of "-"
+                    // Address Line1 - Will use address_1, city, or company name as fallback in REST service
+                    // Only set if we have a value from sheet
+                    if (isset($headerMap['Address_1']) && !empty(trim($row[$headerMap['Address_1']] ?? ''))) {
+                        $vendorData['tin_address_line1'] = trim($row[$headerMap['Address_1']]);
                     }
+                    // Don't set default here - let REST service use address_1, city, or company name
 
-                    // (EInv)Identification Code - REQUIRED
-                    if (isset($headerMap['Identification_Code']) && !empty($row[$headerMap['Identification_Code']])) {
-                        $vendorData['einv_identification_code'] = trim($row[$headerMap['Identification_Code']]);
+                    // City Name - Will use city or country-based default in REST service
+                    // Only set if we have a value from sheet
+                    if (isset($headerMap['City']) && !empty(trim($row[$headerMap['City']] ?? ''))) {
+                        $vendorData['tin_city_name'] = trim($row[$headerMap['City']]);
+                    }
+                    // Don't set default here - let REST service handle fallbacks
+
+                    // Country Code - REQUIRED (custentity_tin_countrycode) - reference to custom record
+                    // Default: ID 158 = "MYS : MALAYSIA" for Malaysian, ID 239 = "USA : UNITED STATES" for others
+                    $vendorData['tin_country_code_id'] = $isMalaysian ? '158' : '239';
+
+                    // State Code - REQUIRED (custentity_tin_statecode) - reference to custom record
+                    // Default: ID 218 = "17 : Not Applicable"
+                    $vendorData['tin_state_code_id'] = '218';
+
+                    // Identification Code - REQUIRED (custentity_tin_id) - string value
+                    if (isset($headerMap['Identification_Code']) && !empty(trim($row[$headerMap['Identification_Code']] ?? ''))) {
+                        $vendorData['tin_identification_code'] = trim($row[$headerMap['Identification_Code']]);
                     } else {
                         // For non-Malaysian vendors, default to "000000", otherwise use "0"
-                        $vendorData['einv_identification_code'] = !$isMalaysian ? '000000' : '0';
+                        $vendorData['tin_identification_code'] = !$isMalaysian ? '000000' : '0';
                     }
 
-                    // (EInv)Identification Type - REQUIRED
-                    if (isset($headerMap['Identification_Type']) && !empty($row[$headerMap['Identification_Type']])) {
-                        $vendorData['einv_identification_type'] = trim($row[$headerMap['Identification_Type']]);
+                    // Identification Type - REQUIRED (custentity_tin_idtype) - reference to custom record
+                    // Default: ID 2 = "BRN : Business Registration No."
+                    $vendorData['tin_id_type_id'] = '2';
+
+                    // Tourism Tax Register - OPTIONAL (custentity_tin_tourismtaxregister)
+                    if (isset($headerMap['Tourism_Tax']) && !empty(trim($row[$headerMap['Tourism_Tax']] ?? ''))) {
+                        $vendorData['tin_tourism_tax'] = trim($row[$headerMap['Tourism_Tax']]);
+                    }
+
+                    $this->line("  TIN/E-Invoicing fields:");
+                    $this->line("    TIN No: {$vendorData['tin_no']}");
+                    $this->line("    Registered Name: {$vendorData['tin_registered_name']}");
+                    $this->line("    SST Register No: {$vendorData['tin_sst_register_no']}");
+                    $this->line("    MSIC Code ID: {$vendorData['tin_msic_id']}");
+                    $this->line("    Address Line1: " . ($vendorData['tin_address_line1'] ?? '[will use address/city/company name]'));
+                    $this->line("    City Name: " . ($vendorData['tin_city_name'] ?? '[will use city or default based on country]'));
+                    $this->line("    Country Code ID: {$vendorData['tin_country_code_id']}");
+                    $this->line("    State Code ID: {$vendorData['tin_state_code_id']}");
+                    $this->line("    Identification Code: {$vendorData['tin_identification_code']}");
+                    $this->line("    Identification Type ID: {$vendorData['tin_id_type_id']}");
+
+                    // Create vendor in NetSuite
+                    // Default to SOAP (works reliably), unless --rest flag is explicitly set
+                    $useREST = $this->option('rest');
+                    $apiType = $useREST ? 'REST' : 'SOAP';
+                    $this->line("  Creating vendor in NetSuite via {$apiType} API...");
+                    
+                    if ($useREST) {
+                        $this->warn("    ⚠️  Using REST API - may encounter validation issues. Remove --rest flag to use SOAP.");
+                        $result = $netSuiteRestService->createVendor($vendorData);
                     } else {
-                        // For non-Malaysian vendors, default to "BRN", otherwise use "BRN" as well
-                        $vendorData['einv_identification_type'] = 'BRN'; // Default to Business Registration Number
+                        $result = $netSuiteService->createVendorWithTINFields($vendorData);
                     }
-
-                    $this->line("  E-Invoicing fields set:");
-                    $this->line("    TIN: {$vendorData['einv_tin_no']}");
-                    $this->line("    Registered Name: {$vendorData['einv_registered_name']}");
-                    $this->line("    SST: {$vendorData['einv_sst_register_no']}");
-                    $this->line("    MSIC: {$vendorData['einv_msic_code']}");
-                    $this->line("    Address: {$vendorData['einv_address_line1']}");
-                    $this->line("    City: {$vendorData['einv_city_name']}");
-                    $this->line("    Country: {$vendorData['einv_country_code']}");
-                    $this->line("    State: {$vendorData['einv_state_code']}");
-                    $this->line("    ID Code: {$vendorData['einv_identification_code']}");
-                    $this->line("    ID Type: {$vendorData['einv_identification_type']}");
-
-                    // Create vendor in NetSuite via REST API
-                    $this->line("  Creating vendor in NetSuite via REST API...");
-                    $result = $netSuiteRestService->createVendor($vendorData);
 
                     if ($result['success']) {
                         $internalId = $result['internal_id'] ?? null;

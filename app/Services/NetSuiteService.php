@@ -952,6 +952,171 @@ class NetSuiteService
     }
 
     /**
+     * Create vendor with correct TIN/E-Invoicing fields (custentity_tin_*)
+     * This method uses the correct field script IDs as found in vendor_reference.json
+     */
+    public function createVendorWithTINFields(array $vendorData)
+    {
+        try {
+            $vendor = new \Vendor();
+
+            // Required: Company Name and Legal Name
+            if (isset($vendorData['company_name'])) {
+                $vendor->companyName = $vendorData['company_name'];
+                $vendor->legalName = $vendorData['company_name']; // Set both like test.js
+            }
+
+            // Entity ID (vendor code) - optional, NetSuite auto-generates if not provided
+            if (isset($vendorData['entity_id']) && !empty($vendorData['entity_id'])) {
+                $vendor->entityId = $vendorData['entity_id'];
+            }
+
+            // Email
+            if (isset($vendorData['email'])) {
+                $vendor->email = $vendorData['email'];
+            }
+
+            // Phone
+            if (isset($vendorData['phone'])) {
+                $vendor->phone = $vendorData['phone'];
+            }
+
+            // Is Inactive
+            if (isset($vendorData['is_inactive'])) {
+                $vendor->isInactive = (bool) $vendorData['is_inactive'];
+            }
+
+            // Currency
+            if (isset($vendorData['currency_id'])) {
+                $currencyRef = new \RecordRef();
+                $currencyRef->internalId = (string) $vendorData['currency_id'];
+                $currencyRef->type = 'currency';
+                $vendor->currency = $currencyRef;
+            }
+
+            // Address Book
+            if (isset($vendorData['address_1']) || isset($vendorData['city']) || isset($vendorData['country'])) {
+                $addressBook = new \VendorAddressbook();
+                $addressBook->defaultBilling = true;
+                $addressBook->defaultShipping = true;
+
+                $addressBookAddress = new \Address();
+                if (isset($vendorData['address_1'])) $addressBookAddress->addr1 = $vendorData['address_1'];
+                if (isset($vendorData['address_2'])) $addressBookAddress->addr2 = $vendorData['address_2'];
+                if (isset($vendorData['city'])) $addressBookAddress->city = $vendorData['city'];
+                if (isset($vendorData['state'])) $addressBookAddress->state = $vendorData['state'];
+                if (isset($vendorData['zip'])) $addressBookAddress->zip = $vendorData['zip'];
+                if (isset($vendorData['country'])) $addressBookAddress->country = $vendorData['country'];
+
+                $addressBook->addressbookAddress = $addressBookAddress;
+                $vendor->addressbookList = new \VendorAddressbookList();
+                $vendor->addressbookList->addressbook = [$addressBook];
+            }
+
+            // Custom Fields - CORRECT TIN FIELD NAMES (custentity_tin_*)
+            $customFieldList = [];
+
+            // Helper function to add string fields
+            $addStringField = function($scriptId, $dataKey) use (&$customFieldList, $vendorData) {
+                if (isset($vendorData[$dataKey]) && $vendorData[$dataKey] !== '') {
+                    $customField = new \StringCustomFieldRef();
+                    $customField->scriptId = $scriptId;
+                    $customField->value = (string) $vendorData[$dataKey];
+                    $customFieldList[] = $customField;
+                    return true;
+                }
+                return false;
+            };
+
+            // Helper function to add select/reference fields
+            $addSelectField = function($scriptId, $dataKey) use (&$customFieldList, $vendorData) {
+                if (isset($vendorData[$dataKey]) && $vendorData[$dataKey] !== '') {
+                    $customField = new \SelectCustomFieldRef();
+                    $customField->scriptId = $scriptId;
+                    $customField->value = new \ListOrRecordRef();
+                    $customField->value->internalId = (string) $vendorData[$dataKey];
+                    $customFieldList[] = $customField;
+                    return true;
+                }
+                return false;
+            };
+
+            // TIN/E-Invoicing fields - using CORRECT script IDs
+            $addStringField('custentity_tin_no', 'tin_no');
+            $addStringField('custentity_tin_registeredname', 'tin_registered_name');
+            $addStringField('custentity_tin_sstregisterno', 'tin_sst_register_no');
+            $addSelectField('custentity_tin_msic', 'tin_msic_id');
+            $addStringField('custentity_tin_addrline1', 'tin_address_line1');
+            $addStringField('custentity_tin_cityname', 'tin_city_name');
+            $addSelectField('custentity_tin_countrycode', 'tin_country_code_id');
+            $addSelectField('custentity_tin_statecode', 'tin_state_code_id');
+            $addStringField('custentity_tin_id', 'tin_identification_code');
+            $addSelectField('custentity_tin_idtype', 'tin_id_type_id');
+            $addStringField('custentity_tin_tourismtaxregister', 'tin_tourism_tax');
+
+            // Add custom fields to vendor
+            if (!empty($customFieldList)) {
+                $vendor->customFieldList = new \CustomFieldList();
+                $vendor->customFieldList->customField = $customFieldList;
+            }
+
+            // Log the vendor object structure
+            Log::info('Creating vendor via SOAP', [
+                'company_name' => $vendor->companyName,
+                'entity_id' => $vendor->entityId ?? 'AUTO',
+                'custom_fields_count' => count($customFieldList),
+                'has_address' => isset($vendor->addressbookList)
+            ]);
+
+            // Create vendor
+            $addRequest = new \AddRequest();
+            $addRequest->record = $vendor;
+
+            $addResponse = $this->service->add($addRequest);
+
+            if (!$addResponse->writeResponse->status->isSuccess) {
+                $errorMsg = $this->getStatusMessage($addResponse->writeResponse->status);
+                Log::error('Vendor creation via SOAP failed: ' . $errorMsg);
+
+                return [
+                    'success' => false,
+                    'error' => $errorMsg,
+                    'netsuite_response' => json_encode($addResponse->writeResponse->status)
+                ];
+            }
+
+            $internalId = $addResponse->writeResponse->baseRef->internalId;
+
+            // Get the created vendor to retrieve the auto-generated entity ID
+            $createdVendor = $this->getVendor($internalId);
+            $entityId = $createdVendor->entityId ?? null;
+
+            Log::info("Vendor created successfully via SOAP with internal ID: {$internalId}" . ($entityId ? ", entity ID: {$entityId}" : ""));
+
+            return [
+                'success' => true,
+                'internal_id' => $internalId,
+                'entity_id' => $entityId
+            ];
+
+        } catch (\SoapFault $e) {
+            Log::error('NetSuite SOAP Fault creating vendor: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'SOAP Fault: ' . $e->getMessage(),
+                'netsuite_response' => $e->detail ?? ''
+            ];
+        } catch (\Exception $e) {
+            Log::error('NetSuite Create Vendor (SOAP/TIN) Error: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'netsuite_response' => ''
+            ];
+        }
+    }
+
+    /**
      * Check if vendor exists by entity ID (vendor code)
      *
      * @param string $entityId The vendor entity ID

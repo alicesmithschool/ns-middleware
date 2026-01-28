@@ -1,0 +1,234 @@
+{
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/vendor/2183"
+        }
+    ],
+    "addressBook": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/vendor/2183/addressBook"
+            }
+        ]
+    },
+    "balance": 0,
+    "balancePrimary": 0,
+    "category": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/vendorcategory/6"
+            }
+        ],
+        "id": "6",
+        "refName": "Trade Creditors"
+    },
+    "companyName": "APPLE STORE MALAYSIA",
+    "contactList": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/vendor/2183/contactList"
+            }
+        ]
+    },
+    "creditLimit": 1000000,
+    "cseg_assa_nob": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord_cseg_assa_nob/2"
+            }
+        ],
+        "id": "2",
+        "refName": "Facilities & Operations"
+    },
+    "currency": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/currency/1"
+            }
+        ],
+        "id": "1",
+        "refName": "Malaysian Ringgit"
+    },
+    "currencyList": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/vendor/2183/currencyList"
+            }
+        ]
+    },
+    "custentity_11724_pay_bank_fees": false,
+    "custentity_2663_payment_method": false,
+    "custentity__eiv_invalididinfo": false,
+    "custentity__eiv_invalidtin": false,
+    "custentity__eiv_isdeliveryentity": false,
+    "custentity__eiv_isvalidated": false,
+    "custentity__eiv_tinfound": false,
+    "custentity_tin_addrline1": "NA",
+    "custentity_tin_addrline3": "Kuala Lumpur",
+    "custentity_tin_cityname": "NA",
+    "custentity_tin_countrycode": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_countrycode/158"
+            }
+        ],
+        "id": "158",
+        "refName": "MYS : MALAYSIA"
+    },
+    "custentity_tin_id": "034",
+    "custentity_tin_idtype": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_identificationtype/2"
+            }
+        ],
+        "id": "2",
+        "refName": "BRN : Business Registration No."
+    },
+    "custentity_tin_msic": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_msic/1"
+            }
+        ],
+        "id": "1",
+        "refName": "00000 : NOT APPLICABLE"
+    },
+    "custentity_tin_msicdescription": "NOT APPLICABLE",
+    "custentity_tin_no": "EI00000000010",
+    "custentity_tin_registeredname": "APPLE STORE MALAYSIA",
+    "custentity_tin_sstregisterno": "NA",
+    "custentity_tin_statecode": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_state/218"
+            }
+        ],
+        "id": "218",
+        "refName": "17 : Not Applicable"
+    },
+    "custentity_tin_tourismtaxregister": "NA",
+    "customForm": {
+        "id": "2",
+        "refName": "Alice Smith Vendor Form"
+    },
+    "dateCreated": "2025-09-17T02:08:00Z",
+    "defaultAddress": "APPLE STORE MALAYSIA\nKuala Lumpur Kuala Lumpur \nMalaysia",
+    "emailPreference": {
+        "id": "DEFAULT",
+        "refName": "Default"
+    },
+    "emailTransactions": false,
+    "entityId": "VID000208 APPLE STORE MALAYSIA",
+    "faxTransactions": false,
+    "id": "2183",
+    "isInactive": false,
+    "isJobResourceVend": false,
+    "isPerson": false,
+    "lastModifiedDate": "2025-10-02T13:24:00Z",
+    "legalName": "APPLE STORE MALAYSIA",
+    "payablesAccount": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/account/110"
+            }
+        ],
+        "id": "110",
+        "refName": "Accounts Payable"
+    },
+    "prepaymentBalance": 0,
+    "printTransactions": false,
+    "subsidiary": {
+        "links": [
+            {
+                "rel": "self",
+                "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/subsidiary/1"
+            }
+        ],
+        "id": "1",
+        "refName": "Parent Company"
+    },
+    "unbilledOrders": 0,
+    "unbilledOrdersPrimary": 0,
+    "_customFields": {
+        "cseg_assa_nob": {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord_cseg_assa_nob/2"
+                }
+            ],
+            "id": "2",
+            "refName": "Facilities & Operations"
+        },
+        "custentity_11724_pay_bank_fees": false,
+        "custentity_2663_payment_method": false,
+        "custentity__eiv_invalididinfo": false,
+        "custentity__eiv_invalidtin": false,
+        "custentity__eiv_isdeliveryentity": false,
+        "custentity__eiv_isvalidated": false,
+        "custentity__eiv_tinfound": false,
+        "custentity_tin_addrline1": "NA",
+        "custentity_tin_addrline3": "Kuala Lumpur",
+        "custentity_tin_cityname": "NA",
+        "custentity_tin_countrycode": {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_countrycode/158"
+                }
+            ],
+            "id": "158",
+            "refName": "MYS : MALAYSIA"
+        },
+        "custentity_tin_id": "034",
+        "custentity_tin_idtype": {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_identificationtype/2"
+                }
+            ],
+            "id": "2",
+            "refName": "BRN : Business Registration No."
+        },
+        "custentity_tin_msic": {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_msic/1"
+                }
+            ],
+            "id": "1",
+            "refName": "00000 : NOT APPLICABLE"
+        },
+        "custentity_tin_msicdescription": "NOT APPLICABLE",
+        "custentity_tin_no": "EI00000000010",
+        "custentity_tin_registeredname": "APPLE STORE MALAYSIA",
+        "custentity_tin_sstregisterno": "NA",
+        "custentity_tin_statecode": {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://9897202.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord__eiv_state/218"
+                }
+            ],
+            "id": "218",
+            "refName": "17 : Not Applicable"
+        },
+        "custentity_tin_tourismtaxregister": "NA"
+    },
+    "_customFieldsCount": 21
+}
