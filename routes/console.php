@@ -46,6 +46,6 @@ Schedule::command('netsuite:sync-accounts')
 
 // push vendors from sheets hourly
 Schedule::command('netsuite:push-vendors-from-sheets')
-    ->hourly()
+    ->everyThirtyMinutes()
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
