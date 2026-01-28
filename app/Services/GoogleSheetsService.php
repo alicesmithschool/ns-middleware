@@ -220,6 +220,52 @@ class GoogleSheetsService
     }
 
     /**
+     * Clear all data from a sheet (keeps the sheet itself)
+     */
+    public function clearSheet($sheetName, $spreadsheetId = null)
+    {
+        try {
+            $targetSpreadsheetId = $spreadsheetId ?? $this->spreadsheetId;
+            $range = $sheetName;
+            
+            $clear = new \Google_Service_Sheets_ClearValuesRequest();
+            $result = $this->service->spreadsheets_values->clear(
+                $targetSpreadsheetId,
+                $range,
+                $clear
+            );
+            
+            return $result;
+        } catch (\Exception $e) {
+            Log::error('Google Sheets Clear Sheet Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Clear a specific range in a sheet
+     */
+    public function clearRange($sheetName, $range, $spreadsheetId = null)
+    {
+        try {
+            $targetSpreadsheetId = $spreadsheetId ?? $this->spreadsheetId;
+            $fullRange = "{$sheetName}!{$range}";
+            
+            $clear = new \Google_Service_Sheets_ClearValuesRequest();
+            $result = $this->service->spreadsheets_values->clear(
+                $targetSpreadsheetId,
+                $fullRange,
+                $clear
+            );
+            
+            return $result;
+        } catch (\Exception $e) {
+            Log::error('Google Sheets Clear Range Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Get spreadsheet ID from URL
      */
     public static function extractSpreadsheetId($url)

@@ -1168,6 +1168,183 @@ class NetSuiteRestService
     }
 
     /**
+     * Search Purchase Orders using SuiteQL with pagination support
+     * 
+     * @param array $fields Fields to select (default: id, tranid, trandate, entity, memo, total, currency, exchangerate, department, location, status)
+     * @param string $where WHERE clause (optional)
+     * @param int $limit Number of records per page (default: 1000, max: 1000)
+     * @return array Array of purchase order records
+     */
+    public function searchPurchaseOrders($fields = null, $where = null, $limit = 1000)
+    {
+        try {
+            // Use only basic transaction fields that are guaranteed to exist
+            $defaultFields = 'id, tranid, trandate, entity, memo, status, foreigntotal AS total, currency, exchangerate';
+            $selectFields = $fields ? implode(', ', $fields) : $defaultFields;
+            
+            // NetSuite SuiteQL uses 'transaction' table with type filter for Purchase Orders
+            // Type can be 'PurchOrd' in some NetSuite versions
+            $baseQuery = "SELECT {$selectFields} FROM transaction WHERE type = 'PurchOrd'";
+            if ($where) {
+                $baseQuery .= " AND {$where}";
+            }
+            $baseQuery .= " ORDER BY id DESC";
+            
+            $endpoint = '/services/rest/query/v1/suiteql';
+            $token = $this->getAccessToken();
+            $url = "https://{$this->domain}{$endpoint}";
+            
+            $allPOs = [];
+            $offset = 0;
+            $hasMore = true;
+            
+            // NetSuite SuiteQL has a max limit of 1000 per request
+            $pageLimit = min($limit, 1000);
+            
+            Log::info("Fetching Purchase Orders using SuiteQL with pagination (limit: {$pageLimit} per page)...");
+            
+            while ($hasMore) {
+                $requestPayload = ['q' => $baseQuery];
+                
+                // For pagination beyond first page
+                if ($offset > 0 && !empty($allPOs)) {
+                    $lastPOId = end($allPOs)['id'] ?? null;
+                    if ($lastPOId) {
+                        $paginationQuery = $baseQuery;
+                        if (strpos($paginationQuery, 'WHERE') !== false) {
+                            $paginationQuery = str_replace('ORDER BY id DESC', "AND id < {$lastPOId} ORDER BY id DESC", $paginationQuery);
+                        } else {
+                            $paginationQuery = str_replace('ORDER BY id DESC', "WHERE id < {$lastPOId} ORDER BY id DESC", $paginationQuery);
+                        }
+                        $requestPayload['q'] = $paginationQuery;
+                    }
+                }
+                
+                $response = Http::withToken($token)
+                    ->withHeaders([
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                        'Prefer' => 'transient'
+                    ])
+                    ->post($url, $requestPayload);
+                
+                if (!$response->successful()) {
+                    $errorBody = $response->body();
+                    $errorData = $response->json();
+                    
+                    Log::error('NetSuite REST API SuiteQL Error (Purchase Orders)', [
+                        'endpoint' => $endpoint,
+                        'url' => $url,
+                        'query' => $requestPayload['q'],
+                        'status' => $response->status(),
+                        'response' => $errorBody
+                    ]);
+                    
+                    $errorMessage = 'NetSuite REST API SuiteQL request failed: HTTP ' . $response->status();
+                    if (isset($errorData['error']) || isset($errorData['message'])) {
+                        $errorMessage .= ' - ' . ($errorData['error'] ?? $errorData['message'] ?? $errorBody);
+                    } else {
+                        $errorMessage .= ' - ' . substr($errorBody, 0, 200);
+                    }
+                    
+                    throw new \Exception($errorMessage);
+                }
+                
+                $data = $response->json();
+                $items = $data['items'] ?? [];
+                
+                $hasMore = isset($data['hasMore']) ? (bool)$data['hasMore'] : false;
+                
+                // Check for next link in response
+                if (!$hasMore && isset($data['links']) && is_array($data['links'])) {
+                    foreach ($data['links'] as $link) {
+                        if (isset($link['rel']) && $link['rel'] === 'next') {
+                            $hasMore = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!$hasMore && count($items) >= $pageLimit) {
+                    $hasMore = true;
+                }
+                
+                if (!empty($items)) {
+                    $allPOs = array_merge($allPOs, $items);
+                    Log::info("Fetched " . count($items) . " Purchase Orders (total so far: " . count($allPOs) . ")");
+                } else {
+                    $hasMore = false;
+                }
+                
+                // Respect limit
+                if (count($allPOs) >= $limit) {
+                    $allPOs = array_slice($allPOs, 0, $limit);
+                    $hasMore = false;
+                }
+                
+                $offset += count($items);
+                
+                // Small delay to avoid rate limiting
+                if ($hasMore) {
+                    usleep(200000); // 0.2 seconds
+                }
+                
+                // Safety check: NetSuite has a max of 100,000 results for SuiteQL
+                if ($offset >= 100000) {
+                    Log::warning("Reached NetSuite SuiteQL maximum limit of 100,000 results");
+                    break;
+                }
+            }
+            
+            Log::info("Total Purchase Orders fetched: " . count($allPOs));
+            return $allPOs;
+            
+        } catch (\Exception $e) {
+            Log::error('Error searching Purchase Orders: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Get a Purchase Order by internal ID with sublists expanded
+     * 
+     * @param int $poId Purchase Order internal ID
+     * @return array Purchase Order details including expense/item lines
+     */
+    public function getPurchaseOrder($poId)
+    {
+        try {
+            // Use REST Record API with expandSubResources to get line items
+            $endpoint = "/services/rest/record/v1/purchaseOrder/{$poId}?expandSubResources=true";
+            return $this->makeRequest('GET', $endpoint);
+            
+        } catch (\Exception $e) {
+            Log::error("Error fetching PO {$poId} via REST API: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Get item details by ID and type
+     *
+     * @param string $itemId The item internal ID
+     * @param string $itemType The item type (e.g., 'noninventorypurchaseitem', 'inventoryitem', etc.)
+     * @return array|null The item record with account details, or null if failed
+     */
+    public function getItem($itemId, $itemType = 'noninventorypurchaseitem')
+    {
+        $endpoint = "/services/rest/record/v1/{$itemType}/{$itemId}";
+        
+        try {
+            $response = $this->makeRequest('GET', $endpoint);
+            return $response;
+        } catch (\Exception $e) {
+            Log::warning("Failed to fetch item {$itemId} of type {$itemType}: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Helper method for info messages (for use in commands)
      */
     protected function info($message)

@@ -44,8 +44,14 @@ Schedule::command('netsuite:sync-accounts')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
 
-// push vendors from sheets hourly
+// push vendors from sheets every 15th minute of the hour 
 Schedule::command('netsuite:push-vendors-from-sheets')
-    ->everyThirtyMinutes()
+    ->cron('15 * * * *')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
+
+// pull purchase orders for journal entries every 40th minute of the hour
+Schedule::command('journal:get-ns-po')
+    ->cron('40 * * * *')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
