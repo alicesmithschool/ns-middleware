@@ -629,5 +629,273 @@ class KissflowService
 
         return rtrim($this->baseUrl, '/') . "/dataset/2/{$datasetAppId}/{$datasetId}/batch";
     }
+
+    /**
+     * Get all items from a Kissflow dataset with pagination
+     *
+     * @param string $datasetId The dataset ID (e.g., 'Budgets_01')
+     * @param int $pageSize Number of items per page (max 1000)
+     * @return array Returns array of all items from the dataset
+     */
+    public function getDatasetItems(string $datasetId, int $pageSize = 1000): array
+    {
+        try {
+            $datasetAppId = env('KISSFLOW_DATASET_APP_ID', 'AcflcLIlo4aq');
+            $url = $this->baseUrl . "/dataset/2/{$datasetAppId}/{$datasetId}/item";
+
+            $allItems = [];
+            $pageNumber = 1;
+            $hasMore = true;
+
+            while ($hasMore) {
+                $response = Http::withHeaders([
+                    'X-Access-Key-Id' => $this->accessKeyId,
+                    'X-Access-Key-Secret' => $this->accessKeySecret,
+                ])->get($url, [
+                    'page_number' => $pageNumber,
+                    'page_size' => $pageSize,
+                ]);
+
+                if (!$response->successful()) {
+                    Log::error('Kissflow Dataset Get Items Error', [
+                        'dataset_id' => $datasetId,
+                        'page' => $pageNumber,
+                        'status' => $response->status(),
+                        'response' => $response->body()
+                    ]);
+                    throw new \Exception('Kissflow API request failed: HTTP ' . $response->status() . ' - ' . $response->body());
+                }
+
+                $data = $response->json();
+                $dataArray = $data['Data'] ?? $data['data'] ?? [];
+
+                if (empty($dataArray)) {
+                    $hasMore = false;
+                } else {
+                    $allItems = array_merge($allItems, $dataArray);
+                    
+                    // If we got less than page_size, we've reached the end
+                    if (count($dataArray) < $pageSize) {
+                        $hasMore = false;
+                    } else {
+                        $pageNumber++;
+                    }
+                }
+
+                // Small delay to avoid rate limiting
+                usleep(100000); // 0.1 seconds
+            }
+
+            Log::info('Kissflow Dataset Items Retrieved', [
+                'dataset_id' => $datasetId,
+                'total_items' => count($allItems),
+                'pages_fetched' => $pageNumber
+            ]);
+
+            return $allItems;
+
+        } catch (\Exception $e) {
+            Log::error('Kissflow Get Dataset Items Error: ' . $e->getMessage(), [
+                'dataset_id' => $datasetId
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Get a single item from a Kissflow dataset by ID
+     *
+     * @param string $datasetId The dataset ID
+     * @param string $itemId The item _id
+     * @return array|null Returns the item data or null if not found
+     */
+    public function getDatasetItemById(string $datasetId, string $itemId): ?array
+    {
+        try {
+            $datasetAppId = env('KISSFLOW_DATASET_APP_ID', 'AcflcLIlo4aq');
+            $url = $this->baseUrl . "/dataset/2/{$datasetAppId}/{$datasetId}/{$itemId}";
+
+            $response = Http::withHeaders([
+                'X-Access-Key-Id' => $this->accessKeyId,
+                'X-Access-Key-Secret' => $this->accessKeySecret,
+            ])->get($url);
+
+            if (!$response->successful()) {
+                if ($response->status() === 404) {
+                    return null;
+                }
+                Log::error('Kissflow Dataset Get Item Error', [
+                    'dataset_id' => $datasetId,
+                    'item_id' => $itemId,
+                    'status' => $response->status(),
+                    'response' => $response->body()
+                ]);
+                throw new \Exception('Kissflow API request failed: HTTP ' . $response->status());
+            }
+
+            $data = $response->json();
+            return $data['Data'] ?? $data['data'] ?? $data;
+
+        } catch (\Exception $e) {
+            Log::error('Kissflow Get Dataset Item Error: ' . $e->getMessage(), [
+                'dataset_id' => $datasetId,
+                'item_id' => $itemId
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Update a single item in a Kissflow dataset
+     *
+     * @param string $datasetId The dataset ID
+     * @param string $itemId The item _id
+     * @param array $data The data to update
+     * @return array Returns the update result
+     */
+    public function updateDatasetItem(string $datasetId, string $itemId, array $data): array
+    {
+        try {
+            $datasetAppId = env('KISSFLOW_DATASET_APP_ID', 'AcflcLIlo4aq');
+            $url = $this->baseUrl . "/dataset/2/{$datasetAppId}/{$datasetId}/{$itemId}";
+
+            $response = Http::withHeaders([
+                'X-Access-Key-Id' => $this->accessKeyId,
+                'X-Access-Key-Secret' => $this->accessKeySecret,
+                'Content-Type' => 'application/json',
+            ])->put($url, $data);
+
+            if (!$response->successful()) {
+                Log::error('Kissflow Dataset Update Item Error', [
+                    'dataset_id' => $datasetId,
+                    'item_id' => $itemId,
+                    'status' => $response->status(),
+                    'response' => $response->body()
+                ]);
+                throw new \Exception('Kissflow API request failed: HTTP ' . $response->status() . ' - ' . $response->body());
+            }
+
+            $responseData = $response->json();
+
+            Log::info('Kissflow Dataset Item Updated', [
+                'dataset_id' => $datasetId,
+                'item_id' => $itemId,
+                'updated_fields' => array_keys($data)
+            ]);
+
+            return [
+                'success' => true,
+                'data' => $responseData
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Kissflow Update Dataset Item Error: ' . $e->getMessage(), [
+                'dataset_id' => $datasetId,
+                'item_id' => $itemId
+            ]);
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Batch update items in a Kissflow dataset
+     *
+     * @param string $datasetId The dataset ID
+     * @param array $items Array of items to update (each must include _id)
+     * @return array Returns success status and response data
+     */
+    public function updateDatasetBatch(string $datasetId, array $items): array
+    {
+        try {
+            $datasetAppId = env('KISSFLOW_DATASET_APP_ID', 'AcflcLIlo4aq');
+            $url = $this->baseUrl . "/dataset/2/{$datasetAppId}/{$datasetId}/batch";
+
+            Log::info('Kissflow Dataset Batch Update', [
+                'dataset_id' => $datasetId,
+                'item_count' => count($items)
+            ]);
+
+            $response = Http::withHeaders([
+                'X-Access-Key-Id' => $this->accessKeyId,
+                'X-Access-Key-Secret' => $this->accessKeySecret,
+                'Content-Type' => 'application/json',
+            ])->post($url, $items);
+
+            if (!$response->successful()) {
+                Log::error('Kissflow Dataset Batch Update Error', [
+                    'dataset_id' => $datasetId,
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'item_count' => count($items)
+                ]);
+                throw new \Exception('Kissflow batch update failed: HTTP ' . $response->status() . ' - ' . $response->body());
+            }
+
+            $responseData = $response->json();
+
+            Log::info('Kissflow Dataset Batch Update Success', [
+                'dataset_id' => $datasetId,
+                'item_count' => count($items),
+                'response' => $responseData
+            ]);
+
+            return [
+                'success' => true,
+                'count' => count($items),
+                'response' => $responseData
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Kissflow Batch Update Error: ' . $e->getMessage(), [
+                'dataset_id' => $datasetId,
+                'item_count' => count($items)
+            ]);
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Get budget dataset items (convenience method for Budgets_01)
+     *
+     * @return array Returns array of all budget items
+     */
+    public function getBudgetItems(): array
+    {
+        $datasetId = env('KISSFLOW_BUDGET_DATASET_ID', 'Budgets_01');
+        return $this->getDatasetItems($datasetId);
+    }
+
+    /**
+     * Update budget spent for a single item
+     *
+     * @param string $itemId The Kissflow item _id
+     * @param float $budgetSpent The new Budget_Spent value
+     * @return array Returns update result
+     */
+    public function updateBudgetSpent(string $itemId, float $budgetSpent): array
+    {
+        $datasetId = env('KISSFLOW_BUDGET_DATASET_ID', 'Budgets_01');
+        return $this->updateDatasetItem($datasetId, $itemId, [
+            'Budget_Spent' => $budgetSpent
+        ]);
+    }
+
+    /**
+     * Batch update budget spent for multiple items
+     *
+     * @param array $updates Array of ['_id' => itemId, 'Budget_Spent' => value]
+     * @return array Returns batch update result
+     */
+    public function updateBudgetSpentBatch(array $updates): array
+    {
+        $datasetId = env('KISSFLOW_BUDGET_DATASET_ID', 'Budgets_01');
+        return $this->updateDatasetBatch($datasetId, $updates);
+    }
 }
 
