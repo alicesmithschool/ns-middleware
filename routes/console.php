@@ -55,3 +55,9 @@ Schedule::command('journal:get-ns-po')
     ->cron('40 * * * *')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
+
+// sync currencies every 12 hours
+Schedule::command('netsuite:sync-currencies')
+    ->cron('0 0 * * *') // every 12 hours on the hour
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/scheduler.log'));
